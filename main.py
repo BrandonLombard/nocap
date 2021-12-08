@@ -1,7 +1,6 @@
 import sys
 from colorama import Fore
 
-
 # Set some variables to keep track of commands used.
 history = []
 i = 0
@@ -85,7 +84,7 @@ while True:
 #########################
 
   # Allow the user to create integers and store them into variables
-  if split_input[0] == 'int':
+  if split_input[0] == 'int':  # INTEGERS
     # Does not allow variable names to have integers in them
     if split_input[1].isdigit():
       variable_name = 'None'
@@ -107,7 +106,7 @@ while True:
             history += [error]
             print(error)
       else:
-        # Error checking and printing to screen + history
+      # Error checking and printing to screen ][po0-qa~W32PO0-\]        + history
         error = (Fore.RED + "Syntax Error: Expected '=' after variable name.")
         history += [error]
         print(error)
@@ -115,31 +114,46 @@ while True:
     pass
 
   # Allow the user to create strings and store them into variables
-  if split_input[0] == 'str':
+  if split_input[0] == 'str':  # STRINGS
     # Does not allow variable names to have integers in them
     if split_input[1].isdigit():
       error = Fore.RED + "Syntax Error: Variables cannot have numbers in them."
       history += [error]
       print(error)
     else:
-      # Assign the second element in the list to variable_name
-      variable_name = split_input[1]
-      if split_input[2] == "=":
-        # If the list item is not an integer, then continue
-          if (split_input[3].isdigit()) == False:
-            string_value = str(split_input[3])
+      # If variable is already used then delete old variable and replace with new
+      already_used = split_input[1] in [j for i in variables_list for j in i]
+      if already_used:
+        variable_location = find_in_list_of_list(variables_list, split_input[1])
+        variables_list[variable_location[0]].pop(0) 
+        variables_list[variable_location[0]].pop(0) 
+        # Assign the second element in the list to variable_name
+        variable_name = split_input[1]
+        if split_input[2] == "=":  # put into a string
+            string_value = " ".join(str(item) for item in split_input[3:-1])
             print(split_input[0], variable_name, '=', string_value)
             variables_list += [[variable_name , str(string_value)]]
-          else:
-            # Error checking and printing to screen + history
-            error = Fore.RED + ("Variable Error: Expected String.")
-            history += [error]
-            print(error)
+        else:
+          # Error checking and printing to screen + history
+          error = Fore.RED + ("Syntax Error: Expected '=' after variable name.")
+          history += [error]
+          print(error)
       else:
-        # Error checking and printing to screen + history
-        error = Fore.RED + ("Syntax Error: Expected '=' after variable name.")
-        history += [error]
-        print(error)
+        # Assign the second element in the list to variable_name
+        variable_name = split_input[1]
+        # If the third piece of the input is an equals sign
+        if split_input[2] == "=": 
+          # join the rest of the input to string_value to act as a string.
+            string_value = " ".join(str(item) for item in split_input[3:-1])
+            # Print out complete command to indicate a working code
+            print(split_input[0], variable_name, '=', string_value)
+            # Add that variable name and value to the variables list.
+            variables_list += [[variable_name , str(string_value)]]
+        else:
+          # Error checking and printing to screen + history
+          error = Fore.RED + ("Syntax Error: Expected '=' after variable name.")
+          history += [error]
+          print(error)
   else:
     pass
 
@@ -148,35 +162,40 @@ while True:
 ##########################
 
   if split_input[0] == "math":
-    # Adding two values.
-    if len(split_input) < 3:
-      # Error checking and printing to screen + history
-      error = Fore.RED + ("Math Error: Missing values or elements after math command.")
-      history += [error]
-      print(error)
-    # If one or more math values are not an integer, produce an error.
-    elif (split_input[1].isdigit() == False) or (split_input[3].isdigit() == False):
-      # Error checking and printing to screen + history
-      error = Fore.RED + ("Math Error: Expected integer(s) for math values.")
-      history += [error]
-      print(error)
+    # 0 / 0 equals undefined
+    if text == "math 0 / 0":
+      print("Undefined")
+    # else continue the program
     else:
-      if split_input[2] == '+':
-        print(int(split_input[1]) + int(split_input[3]))
-      # Subrating two values
-      elif split_input[2] == '-':
-        print(int(split_input[1]) - int(split_input[3]))
-      # Multiplying two values.
-      elif split_input[2] == '*':
-        print(int(split_input[1]) * int(split_input[3]))
-      # Dividing two values.
-      elif split_input[2] == '/':
-        print(int(split_input[1]) / int(split_input[3]))
-      # Power operator
-      elif split_input[2] == '^':
-        print(int(split_input[1]) ** int(split_input[3]))
-      else:
+      # Adding two values.
+      if len(split_input) < 4:
         # Error checking and printing to screen + history
-        error = Fore.RED + ("Math Error: Expected '+', '-', '*', '/', or '^'.")
+        error = Fore.RED + ("Math Error: Missing values or elements after math command.")
         history += [error]
         print(error)
+      # If one or more math values are not an integer, produce an error.
+      elif (split_input[1].isdigit() == False) or (split_input[3].isdigit() == False):
+        # Error checking and printing to screen + history
+        error = Fore.RED + ("Math Error: Expected integer(s) for math values.")
+        history += [error]
+        print(error)
+      else:
+        if split_input[2] == '+':
+          print(int(split_input[1]) + int(split_input[3]))
+        # Subrating two values
+        elif split_input[2] == '-':
+          print(int(split_input[1]) - int(split_input[3]))
+        # Multiplying two values.
+        elif split_input[2] == '*':
+          print(int(split_input[1]) * int(split_input[3]))
+        # Dividing two values.
+        elif split_input[2] == '/':
+          print(int(split_input[1]) / int(split_input[3]))
+        # Power operator
+        elif split_input[2] == '^':
+          print(int(split_input[1]) ** int(split_input[3]))
+        else:
+          # Error checking and printing to screen + history
+          error = Fore.RED + ("Math Error: Expected '+', '-', '*', '/', or '^'.")
+          history += [error]
+          print(error)
