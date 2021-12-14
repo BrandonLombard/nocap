@@ -1,201 +1,228 @@
+####################################################
+#             CODE UNDER CONSTRUCTION              #
+####################################################
+
+########################
+#       IMPORTS        #
+########################
 import sys
-from colorama import Fore
-
-# Set some variables to keep track of commands used.
-history = []
-i = 0
-
-# Keep track of current variables here.
-variables_list = []
-
-print("nocap: v0.1")
-print("type help for assistance.")
-# While the program is running, output the shell.
-while True:
-  # Output shell >
-  text = input(Fore.WHITE + 'nocap.cmd > ')
-  # Creates a list holding the history of commands used.
-  history += [text]
-
-########################
-#       COMMANDS       #
-########################
-
-  # If user types exit, then the program will close.
-  if text == 'exit':
-    sys.exit()
-  # Allow the user to see all current variables and their values.
-  if text == 'var':
-    if variables_list == []:
-      error = (Fore.RED + "There are no variables assigned for this sesson.")
-      history += [error]
-      print(error)
-    else:
-      # Output variable list
-      print(variables_list)
-  # User can call for history.
-  if text == 'his':
-    print(history)
-
-# Help for user and command list
-  if text == 'help':
-    print("\ncommand list:\n")
-    # Exit command help
-    print(Fore.CYAN + "exit" + Fore.WHITE + " = exit the session.")
-    # Variable command help
-    print(Fore.CYAN + "var" + Fore.WHITE + " = see list of current variables. ")
-    # Integer variable help
-    print(Fore.CYAN + "int" + Fore.WHITE + " = integer. Syntax: int name = 1")
-    # String variable help
-    print(Fore.CYAN + "str" + Fore.WHITE + " = string. Syntax: str name = this is a string")
-    # Calling variables help - simple
-    print(Fore.WHITE + "You can enter a variable name and it will output the \nvalue of that variable.")
-    print(Fore.CYAN + "math" + Fore.WHITE + " = conduct math on two numbers. Currently support: +, -, *, /, ^ (power operator). Syntax: math 1 + 1")
-    print() # New line for formatting.
-  
-  # Extract numbers from input
-  numbers = []  # Numbers collected in a list
-  for word in text.split():
-    if word.isdigit():
-      numbers.append(int(word))
-
-  # Turn the input into a list.
-  split_input = text.split()
-
-  # Check if user enters a variable name from current variables list
-  def find_in_list_of_list(mylist, char):
-    for sub_list in variables_list:
-        if char in sub_list:
-            return (mylist.index(sub_list), sub_list.index(char))
-    raise ValueError("'{char}' is not in list".format(char = char))
-
-  if any(text in x for x in variables_list) == True:
-    # Obtain location of inputted variable and its value
-    location_of_variable = find_in_list_of_list(variables_list, text)
-    first_location = location_of_variable[0]
-    second_location = location_of_variable[1]
-    # Output variable value
-    print(variables_list[first_location][0], '=', variables_list[first_location][1])
+from colorama import Fore  # For changing text
 
 
+###############################
+#       TERMINAL CLASS        #
+###############################
+class Terminal:
+    # Split the terminal text into a list.
+    def split_terminal(self):
+      self.user_input = self.user_input.split()
 
-#########################
-#       VARIABLES       #
-#########################
+    # Show command options when user types help in terminal.
+    def help_command(self):
+      print('variables: ')
+      print(Fore.CYAN + 'str ____ = ____', Fore.WHITE, ': create strings')
+      print(Fore.CYAN + 'int ____ = ____', Fore.WHITE, ': create integers')
+      print(Fore.CYAN + 'bool ____ = ____', Fore.WHITE, ': create booleans')
+      print(Fore.CYAN + 'math ____ + ____', Fore.WHITE, ': do math - can use +, -, *, /, ^')
+      print('Commands: ')
+      print(Fore.CYAN + 'exit' + Fore.WHITE + ' or ' + Fore.CYAN +  'bye' + Fore.WHITE + ': close interface.')
 
-  # Allow the user to create integers and store them into variables
-  if split_input[0] == 'int':  # INTEGERS
-    # Does not allow variable names to have integers in them
-    if split_input[1].isdigit():
-      variable_name = 'None'
-      error = Fore.RED + "Syntax Error: Variables cannot have numbers in them."
-      history += [error]
-      print(error)
-    else:
-      # Assign the second element in the list to variable_name
-      variable_name = split_input[1]
-      if split_input[2] == "=":
-          if split_input[3].isdigit():
-            integer_value = int(split_input[3])
-            print(split_input[0], variable_name, '=', integer_value)
-            variables_list += [[variable_name,int(integer_value)]]
-            #print(history)
+###############################
+#       VARIABLES CLASS       #
+###############################
+class Variables:
+
+    # STRINGS
+
+    def do_string(self):
+        # Ensure that the user's input is at least 3 words. If not, an error will be thrown.
+        if len(self.user_input) > 2:
+            # Make sure there is an equals sign after the variable name or error is thrown.
+            if self.user_input[2] == '=':
+                self.variables_add = []  # Reset variables_add list
+                # Combine string text and set to string value.
+                self.variable_value = " ".join(str(item) for item in self.user_input[3:])
+                # Add variable name and string to the variables list.
+                self.variables_add += [self.user_input[1], self.variable_value]
+                # If there is already a variable by that name, then overwrite it.
+                if any(self.user_input[1] in x for x in self.variables_list):
+                  # Find user input variable with for loop
+                  for d in self.variables_list:
+                    # Keep variable name
+                    if d[0] == self.user_input[1]:
+                      # Changes the value, not the variable name.
+                      d[1] = self.variable_value
+                      
+                # Append to variable list if it is not already within the variables list.
+                else:
+                  self.variables_list.append(self.variables_add)
+
+                # Print variables_add for confirmation
+                print(self.variables_add[0], '=', self.variables_add[1]) 
+            else:
+              # Error is thrown if there is no equals sign after the variable name.
+              self.error = Fore.RED + "Syntax Error: '=' Expected after variable name."
+              print(self.error)
+        else:
+          # Error thrown for if the user's input is not at least three words long.
+            self.error = Fore.RED + "Syntax Error: '=' Expected after variable name."
+            print(self.error)
+
+    # INTEGERS
+
+    def do_integer(self):
+      # Ensure that the user's input is at least 3 words. If not, an error will be thrown.
+      if len(self.user_input) > 2:
+        # Make sure there is an equals sign after the variable name or error is thrown.
+        if self.user_input[2] == '=':
+          self.variables_add = [] # Reset variables_add list
+          # Put integer into variable value.
+          self.variable_value = int(self.user_input[3])
+          # Add variable name and string to the variables list.
+          self.variables_add += [self.user_input[1], self.variable_value]
+
+          if any(self.user_input[1] in x for x in self.variables_list):
+                  # Find user input variable with for loop
+                  for d in self.variables_list:
+                    # Keep variable name
+                    if d[0] == self.user_input[1]:
+                      # Changes the value, not the variable name.
+                      d[1] = self.variable_value
+
+          # Append to variable list.
+          self.variables_list.append(self.variables_add)
+          # Print variables_add for confirmation
+          print(self.variables_add[0], '=', self.variables_add[1]) 
+        else:
+          # Error is thrown if there is no equals sign after the variable name.
+          self.error = Fore.RED + "Syntax Error: '=' Expected after variable name."
+          print(self.error)
+      else:
+        # Error thrown for if the user's input is not at least three words long.
+          self.error = Fore.RED + "Syntax Error: '=' Expected after variable name."
+          print(self.error)
+
+    # Booleans
+
+    def do_boolean(self):
+      # Ensure that the user's input is at least 3 words. If not, an error will be thrown.
+      if len(self.user_input) > 2:
+        if self.user_input[2] == '=':
+          self.variables_add = [] # Reset variables_add list
+
+          if any(self.user_input[1] in x for x in self.variables_list):
+                  # Find user input variable with for loop
+                  for d in self.variables_list:
+                    # Keep variable name
+                    if d[0] == self.user_input[1]:
+                      # Changes the value, not the variable name.
+                      if self.user_input[3] == 'true' or self.user_input[3] == 't' or self.user_input[3] == '1':
+                        self.variable_value = 'b_true'
+                        d[1] = self.variable_value
+                        # Add variable name and string to the variables list.
+                        self.variables_add += [self.user_input[1], self.variable_value]
+                        print(self.variables_add[0], '=', self.variables_add[1]) 
+                        break
+                      elif self.user_input[3] == 'false' or self.user_input[3] == 'f' or self.user_input[3] == '0':
+                        self.variable_value = 'b_false'
+                        d[1] = self.variable_value
+                        # Add variable name and string to the variables list.
+                        self.variables_add += [self.user_input[1], self.variable_value]
+                        print(self.variables_add[0], '=', self.variables_add[1]) 
+                        break
+                      else:
+                        # Error thrown for if the user's input is not at least three words long.
+                        self.error = Fore.RED + "Variable Error: Expected a Boolean Type."
+                        print(self.error)
+                    else:
+                      # This error should not be thrown.
+                      self.error = Fore.RED + "Program Error: Please Restart."
+                      print(self.error)
+          # Append to variable list if it is not already within the variables list.
           else:
-            # Error checking and printing to screen + history
-            error = (Fore.RED + "Variable Error: Expected Integer.")
-            history += [error]
-            print(error)
+            # Put bool type into variable value.
+            if self.user_input[3] == 'true' or self.user_input[3] == 't' or self.user_input[3] == '1':
+              self.variable_value = 'b_true'
+              # Add variable name and string to the variables list.
+              self.variables_add += [self.user_input[1], self.variable_value]
+              self.variables_list.append(self.variables_add)
+              print(self.variables_add[0], '=', self.variables_add[1]) 
+            elif self.user_input[3] == 'false' or self.user_input[3] == 'f' or self.user_input[3] == '0':
+              self.variable_value = 'b_false'
+              # Add variable name and string to the variables list.
+              self.variables_add += [self.user_input[1], self.variable_value]
+              self.variables_list.append(self.variables_add)
+              print(self.variables_add[0], '=', self.variables_add[1]) 
+            else:
+              self.error = Fore.RED + "Variable Error: Expected a Boolean Type."
+              print(self.error)
+          
       else:
-      # Error checking and printing to screen ][po0-qa~W32PO0-\]        + history
-        error = (Fore.RED + "Syntax Error: Expected '=' after variable name.")
-        history += [error]
-        print(error)
-  else:
-    pass
+        # Error thrown for if the user's input is not at least three words long.
+          self.error = Fore.RED + "Syntax Error: '=' Expected after variable name."
+          print(self.error)
 
-  # Allow the user to create strings and store them into variables
-  if split_input[0] == 'str':  # STRINGS
-    # Does not allow variable names to have integers in them
-    if split_input[1].isdigit():
-      error = Fore.RED + "Syntax Error: Variables cannot have numbers in them."
-      history += [error]
-      print(error)
+
+
+
+#############################
+#       CLASS CONFIGS       #
+#############################
+
+# Set Variables class to var.
+var = Variables()
+var.error = ""
+var.user_input = ""
+var.variables_list = []
+var.variable_value = ""
+var.variables_add = []
+var.variable_location = []
+
+# Set Terminal class to ter.
+ter = Terminal()
+ter.user_input = []
+
+#############################
+#       WHILE RUNNING       #
+#############################
+
+# Output version upon startup of program.
+print(Fore.WHITE + 'nocap v0.1')
+print(Fore.WHITE + 'type help for assistance.')
+
+# While program is running
+while 1:
+    # Output shell >
+    ter.user_input = input(Fore.WHITE + 'nocap.cmd > ')
+    # Put user's input into a list separating each word within the terminal class.
+    ter.split_terminal()
+    var.user_input = ter.user_input
+
+    # Check user's input to see what their first word is
+    # If it is any of these, then it calls the corresponding class.
+    # If string
+    if ter.user_input[0] == 'str':
+      var.do_string()
+    # If int
+    elif ter.user_input[0] == 'int':
+      var.do_integer()
+    # If boolean
+    elif ter.user_input[0] == 'bool':
+      var.do_boolean()
+    # If math
+    elif ter.user_input[0] == 'math':
+        print('math is not working yet')
+    # print variables list if user types 'var' command.
+    elif ter.user_input[0] == 'var':
+        print(var.variables_list)
+    # If user types the help command.
+    elif ter.user_input[0] == 'help':
+        ter.help_command()
+    elif ter.user_input[0] == "exit" or ter.user_input[0] == "bye":
+      print("closing interface...")
+      sys.exit()
     else:
-      # If variable is already used then delete old variable and replace with new
-      already_used = split_input[1] in [j for i in variables_list for j in i]
-      if already_used:
-        variable_location = find_in_list_of_list(variables_list, split_input[1])
-        variables_list[variable_location[0]].pop(0) 
-        variables_list[variable_location[0]].pop(0) 
-        # Assign the second element in the list to variable_name
-        variable_name = split_input[1]
-        if split_input[2] == "=":  # put into a string
-            string_value = " ".join(str(item) for item in split_input[3:-1])
-            print(split_input[0], variable_name, '=', string_value)
-            variables_list += [[variable_name , str(string_value)]]
-        else:
-          # Error checking and printing to screen + history
-          error = Fore.RED + ("Syntax Error: Expected '=' after variable name.")
-          history += [error]
-          print(error)
-      else:
-        # Assign the second element in the list to variable_name
-        variable_name = split_input[1]
-        # If the third piece of the input is an equals sign
-        if split_input[2] == "=": 
-          # join the rest of the input to string_value to act as a string.
-            string_value = " ".join(str(item) for item in split_input[3:-1])
-            # Print out complete command to indicate a working code
-            print(split_input[0], variable_name, '=', string_value)
-            # Add that variable name and value to the variables list.
-            variables_list += [[variable_name , str(string_value)]]
-        else:
-          # Error checking and printing to screen + history
-          error = Fore.RED + ("Syntax Error: Expected '=' after variable name.")
-          history += [error]
-          print(error)
-  else:
-    pass
+        pass
 
-##########################
-#          MATH          #
-##########################
 
-  if split_input[0] == "math":
-    # 0 / 0 equals undefined
-    if text == "math 0 / 0":
-      print("Undefined")
-    # else continue the program
-    else:
-      # Adding two values.
-      if len(split_input) < 4:
-        # Error checking and printing to screen + history
-        error = Fore.RED + ("Math Error: Missing values or elements after math command.")
-        history += [error]
-        print(error)
-      # If one or more math values are not an integer, produce an error.
-      elif (split_input[1].isdigit() == False) or (split_input[3].isdigit() == False):
-        # Error checking and printing to screen + history
-        error = Fore.RED + ("Math Error: Expected integer(s) for math values.")
-        history += [error]
-        print(error)
-      else:
-        if split_input[2] == '+':
-          print(int(split_input[1]) + int(split_input[3]))
-        # Subrating two values
-        elif split_input[2] == '-':
-          print(int(split_input[1]) - int(split_input[3]))
-        # Multiplying two values.
-        elif split_input[2] == '*':
-          print(int(split_input[1]) * int(split_input[3]))
-        # Dividing two values.
-        elif split_input[2] == '/':
-          print(int(split_input[1]) / int(split_input[3]))
-        # Power operator
-        elif split_input[2] == '^':
-          print(int(split_input[1]) ** int(split_input[3]))
-        else:
-          # Error checking and printing to screen + history
-          error = Fore.RED + ("Math Error: Expected '+', '-', '*', '/', or '^'.")
-          history += [error]
-          print(error)
+# To be added: loops, string concatenation, math, delete var command, etc.
